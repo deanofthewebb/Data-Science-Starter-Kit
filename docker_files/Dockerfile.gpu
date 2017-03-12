@@ -5,11 +5,10 @@ MAINTAINER @deanofthewebb
 ## Docker Working Directory ##
 WORKDIR "/opt"
 
-### PART 1. Install Tensorflow Dependencies ###
-
+### PART 1. Install Dependencies ###
 ENV WORKDIR "/opt"
 
-## Install Prompt Interaction Tool ##
+## 1. Install Prompt Interaction Tool ##
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update && \
     apt-get install debconf-utils && \
@@ -18,7 +17,7 @@ RUN apt-get update && \
     echo debconf shared/accepted-oracle-license-v1-1 seen true | \
     debconf-set-selections
 
-## Install APT-GET PACKAGES ##
+## 2. Install APT-GET PACKAGES ##
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         vim \
@@ -53,27 +52,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/
 
-## STEP 1C. Install Anaconda ##
+## 3. Install Anaconda ##
 RUN mkdir -p $WORKDIR/tmp/ && \
     curl -o $WORKDIR/tmp/Miniconda3-4.2.12-Linux-x86_64.sh \
     https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh && \
     bash $WORKDIR/tmp/Miniconda3-4.2.12-Linux-x86_64.sh -b
 ENV PATH="/root/miniconda3/bin${PATH:+:${PATH}}"
-
-
 COPY docker_files/environment-gpu.yml ./environment.yml
 RUN conda env create -f=environment.yml --name "tf-gpu" --debug -v && \
     conda clean -tp -y
 
-## Install Conda Accelerate ##
+## 4. Install Conda Accelerate ##
 RUN conda install accelerate
 
-## Install OpenJDK-8 Dependencies ##
+## 5. Install OpenJDK-8 Dependencies ##
 RUN apt-get update && \
     apt-get install -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" software-properties-common && \
     apt-get install -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" python-software-properties
 
-## Install Java (OpenJDK-8) ##
+## 6. Install Java (OpenJDK-8) ##
 RUN apt-get update && \
     apt-get install -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" default-jdk
 RUN apt-get update && \
@@ -86,17 +83,16 @@ RUN apt-get update && \
     echo javac --version
 RUN apt install oracle-java8-set-default
 
-## Install OpenJDK-8 Dependencies - CONDA ENV ##
+## 7. Install OpenJDK-8 Dependencies - CONDA ENV ##
 RUN bash -c ". activate tf-gpu && \
     apt-get update && \
     apt-get install -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" software-properties-common && \
     apt-get install -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" python-software-properties"
 
-## Install Java (OpenJDK-8) ##
+## 8. Install Java (OpenJDK-8) - CONDA ENV ##
 RUN bash -c ". activate tf-gpu && \
     apt-get update && \
     apt-get install -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" default-jdk"
-
 RUN bash -c ". activate tf-gpu && \
     apt-get update && \
     add-apt-repository ppa:webupd8team/java && \
@@ -108,7 +104,7 @@ RUN bash -c ". activate tf-gpu && \
     echo javac --version"
 RUN bash -c "source activate tf-gpu && apt install oracle-java8-set-default"
 
-## Install APT-GET PACKAGES - CONDA ENV ##
+## 9. Install APT-GET PACKAGES - CONDA ENV ##
 RUN bash -c "source activate tf-gpu && apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         vim \
@@ -141,35 +137,35 @@ RUN bash -c "source activate tf-gpu && apt-get update && apt-get install -y --no
   apt-get clean && \
   rm -rf /var/lib/apt/lists/"
 
-## Install Nvidia Drivers (If not Installed) ##
+## 10. Install Nvidia Drivers (If not Installed) ##
 RUN add-apt-repository ppa:graphics-drivers/ppa && \
     apt update
 
-## Install Nvidia Drivers (If not Installed) - CONDA ENV ##
+## 11. Install Nvidia Drivers (If not Installed) - CONDA ENV ##
 RUN bash -c "source activate tf-gpu && add-apt-repository ppa:graphics-drivers/ppa && \
     apt update"
 
-## STEP 1A. Verify Nvidia installed ##
+## 12. Verify Nvidia installed ##
 RUN lspci | grep -i nvidia
 
-## STEP 1B. Install Linux Headers for Nvidia ##
+## 13. Install Linux Headers for Nvidia ##
 RUN sh -c "apt-get update && \
         apt-get install -y -q -o \
         Dpkg::Options::='--force-confdef' -o \
         Dpkg::Options::='--force-confold' \
     linux-headers-$(uname -r)"
 
-## STEP 1B. Install Linux Headers for Nvidia - CONDA ##
+## 14. Install Linux Headers for Nvidia - CONDA ENV ##
 RUN bash -c ". activate tf-gpu && apt-get update && \
         apt-get install -y -q -o \
         Dpkg::Options::='--force-confdef' -o \
         Dpkg::Options::='--force-confold' \
     linux-headers-$(uname -r)"
 
-## Set up Jupyter Notebook config. ##
+## 15. Set up Jupyter Notebook config. ##
 COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
 
-## STEP 2. Install EXTRA NVIDIA CUDA DRIVERS FOR GPU ##
+## 16. Install EXTRA NVIDIA CUDA DRIVERS FOR GPU ##
 RUN mkdir -p $WORKDIR/tmp/cuda-repo && \
     curl -o $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1404-8-0-local-ga2_8.0.61-1_amd64.deb \
     https://s3-us-west-1.amazonaws.com/sdc-gpu/cuda-repo-ubuntu1404-8-0-local-ga2_8.0.61-1_amd64.deb && \
@@ -184,7 +180,7 @@ RUN mkdir -p $WORKDIR/tmp/cuda-repo && \
     Dpkg::Options::="--force-confold" \
     cuda-drivers
 
-## STEP 2. Install EXTRA NVIDIA CUDA DRIVERS FOR GPU - CONDA ENV ##
+## 17. Install EXTRA NVIDIA CUDA DRIVERS FOR GPU - CONDA ENV ##
 RUN bash -c "source activate tf-gpu && mkdir -p $WORKDIR/tmp/cuda-repo && \
     curl -o $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1404-8-0-local-ga2_8.0.61-1_amd64.deb \
     https://s3-us-west-1.amazonaws.com/sdc-gpu/cuda-repo-ubuntu1404-8-0-local-ga2_8.0.61-1_amd64.deb && \
@@ -199,20 +195,16 @@ RUN bash -c "source activate tf-gpu && mkdir -p $WORKDIR/tmp/cuda-repo && \
     Dpkg::Options::="--force-confold" \
     cuda-drivers"
 
-## STEP 2A. Install More CUDA Capabilities ##
+## 18. Install More CUDA Capabilities ##
 LABEL com.nvidia.volumes.needed="nvidia_driver"
-
 ENV NVIDIA_GPGKEY_SUM bd841d59a27a406e513db7d405550894188a4c1cd96bf8aa4f82f1b39e0b5c1c
 ENV NVIDIA_GPGKEY_FPR 889bee522da690103c4b085ed88c3d385c37d3be
-
 RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/GPGKEY && \
 apt-key adv --export --no-emit-version -a $NVIDIA_GPGKEY_FPR | tail -n +2 > cudasign.pub && \
 echo "$NVIDIA_GPGKEY_SUM  cudasign.pub" | sha256sum -c --strict - && rm cudasign.pub && \
 echo "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64 /" > /etc/apt/sources.list.d/cuda.list
-
 ENV CUDA_VERSION 8.0
 LABEL com.nvidia.cuda.version="8.0"
-
 ENV CUDA_PKG_VERSION 8-0=8.0.61-1
 RUN apt-get update && apt-get install -y --no-install-recommends --force-yes \
         cuda-nvrtc-$CUDA_PKG_VERSION \
@@ -226,6 +218,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --force-yes \
     ln -s cuda-$CUDA_VERSION /usr/local/cuda && \
     rm -rf /var/lib/apt/lists/*
 
+## 19. Install More CUDA Capabilities - CONDA ENV ##
 RUN bash -c "source activate tf-gpu && apt-get update && apt-get install -y --no-install-recommends --force-yes \
         cuda-nvrtc-$CUDA_PKG_VERSION \
         cuda-cusolver-$CUDA_PKG_VERSION \
@@ -236,7 +229,6 @@ RUN bash -c "source activate tf-gpu && apt-get update && apt-get install -y --no
         cuda-npp-$CUDA_PKG_VERSION \
         cuda-cudart-$CUDA_PKG_VERSION"
 
-
 RUN echo "/usr/local/cuda/lib" >> /etc/ld.so.conf.d/cuda.conf && \
     echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf && \
     ldconfig
@@ -244,26 +236,26 @@ RUN echo "/usr/local/cuda/lib" >> /etc/ld.so.conf.d/cuda.conf && \
 RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
     echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
 
-## STEP 2B. Make sure CUDNN is detected via Symlink ##
+## 20. Make sure CUDNN is detected via Symlink ##
 ENV LD_LIBRARY_PATH="/usr/local/cuda-8.0/lib64\
 ${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 RUN ln -s /usr/lib/x86_64-linux-gnu/libcudnn.so.5 /usr/local/cuda-8.0/lib64/libcudnn.so
 
-## STEP 2C. Setup CUDA 8.0 Environment Variables ##
+## 21. Setup CUDA 8.0 Environment Variables ##
 ENV PATH="/usr/local/cuda-8.0/bin${PATH:+:${PATH}}"
 ENV CUDA_HOME=/usr/local/cuda-8.0/
 
-## STEP 2D. Verify CUDA Installation Version (8.0) ##
+## 22. Verify CUDA Installation Version (8.0) ##
 RUN cat /proc/driver/nvidia/version
 RUN nvcc -V
 
-## Test CUDA 8.0 - 'Samples' Script ##
+## 23. Test CUDA 8.0 - 'Samples' Script ##
 RUN sh -c "cuda-install-samples-8.0.sh $WORKDIR/tmp/cuda-repo/"
 
-## Test CUDA 8.0 - 'Samples' Script - CONDA ENV##
+## 24. Test CUDA 8.0 - 'Samples' Script - CONDA ENV ##
 RUN bash -c ". activate tf-gpu && cuda-install-samples-8.0.sh $WORKDIR/tmp/cuda-repo/"
 
-## Put symlinks in /usr/local/cuda ##
+## 25. Put symlinks in /usr/local/cuda ##
 RUN bash -c "mkdir -p /usr/local/cuda  && \
     mkdir -p /include/ && \
     cd /usr/local/cuda  && \
@@ -277,7 +269,7 @@ RUN bash -c "mkdir -p /usr/local/cuda  && \
     ln -s  /usr/include/ include"
 
 
-## STEP 2E. Extract/Install NVIDIA cuDNN  ##
+## 26. Extract/Install NVIDIA cuDNN  ##
 RUN mkdir -p $WORKDIR/tmp/cuDNN/
 RUN curl -o $WORKDIR/tmp/cuDNN/cudnn-8.0-linux-x64-v5.1.tgz \
     https://s3-us-west-1.amazonaws.com/sdc-gpu/cudnn-8.0-linux-x64-v5.1.tgz && \
@@ -288,43 +280,40 @@ RUN cp -P /usr/lib/x86_64-linux-gnu/libcudnn* /usr/local/cuda-8.0/lib64/
 RUN bash -c "chmod a+r /usr/local/cuda-8.0/include/cudnn.h \
 /usr/local/cuda-8.0/lib64/libcudnn*"
 
-## STEP 2E. Extract/Install NVIDIA cuDNN - CONDA ENV ##
+## 27. Extract/Install NVIDIA cuDNN - CONDA ENV ##
 RUN mkdir -p $WORKDIR/tmp/cuDNN/
 RUN bash -c "source activate tf-gpu && curl -o $WORKDIR/tmp/cuDNN/cudnn-8.0-linux-x64-v5.1.tgz \
     https://s3-us-west-1.amazonaws.com/sdc-gpu/cudnn-8.0-linux-x64-v5.1.tgz && \
     tar -xvzf $WORKDIR/tmp/cuDNN/cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local/cuda-8.0/"
 
+## 28. Install Bazel Dependencies ##
 RUN apt-get update && \
   apt-get install -y --no-install-recommends -q -o\
   Dpkg::Options::="--force-confdef" -o \
   Dpkg::Options::="--force-confold" \
   linux-image-extra-$(uname -r)
-
 RUN apt-get update && \
   apt-get install -y --no-install-recommends -q -o\
   Dpkg::Options::="--force-confdef" -o \
   Dpkg::Options::="--force-confold" \
   linux-image-extra-virtual
-
 RUN apt-get update && \
   apt-get install -y --no-install-recommends -q -o\
   Dpkg::Options::="--force-confdef" -o \
   Dpkg::Options::="--force-confold" \
   apt-transport-https
 
-## SAME STEPS FOR CONDA ENV ##
+## 29. Install Bazel Dependencies - CONDA ENV ##
 RUN bash -c "source activate tf-gpu && apt-get update && \
     apt-get install -y --no-install-recommends -q -o\
     Dpkg::Options::="--force-confdef" -o \
     Dpkg::Options::="--force-confold" \
     linux-image-extra-$(uname -r)"
-
 RUN bash -c "source activate tf-gpu && apt-get update && \
   apt-get install -y --no-install-recommends -q -o\
   Dpkg::Options::="--force-confdef" -o \
   Dpkg::Options::="--force-confold" \
   linux-image-extra-virtual"
-
 RUN bash -c "source activate tf-gpu && apt-get update && \
   apt-get install -y --no-install-recommends -q -o\
   Dpkg::Options::="--force-confdef" -o \
@@ -340,15 +329,13 @@ RUN apt-get update && \
     Dpkg::Options::="--force-confold" \
     libcupti-dev
 
-## CONDA ENV ##
-
 RUN bash -c "source activate tf-gpu && apt-get update && \
     apt-get install -y -q -o \
     Dpkg::Options::="--force-confdef" -o \
     Dpkg::Options::="--force-confold" \
     libcupti-dev"
 
-### STEP 3. Install Bazel ###
+### 30. Install Bazel ###
 RUN echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list && \
     curl https://storage.googleapis.com/bazel-apt/doc/apt-key.pub.gpg | apt-key add - && \
     apt-get update && \
@@ -361,7 +348,7 @@ RUN echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8
     Dpkg::Options::="--force-confold" \
     bazel
 
-### STEP 3. Install Bazel - CONDA ENV ###
+### 31. Install Bazel - CONDA ENV ###
 RUN bash -c "source activate tf-gpu && echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list && \
     curl https://storage.googleapis.com/bazel-apt/doc/apt-key.pub.gpg | apt-key add - && \
     apt-get update && \
@@ -374,24 +361,23 @@ RUN bash -c "source activate tf-gpu && echo "deb [arch=amd64] http://storage.goo
     Dpkg::Options::="--force-confold" \
     bazel"
 
-## STEP 3A. Install ComputeCpp/Open CL ##
+## 32. Install ComputeCpp/Open CL ##
 RUN mkdir -p $WORKDIR/tmp/computeCPP/
 RUN curl -o $WORKDIR/tmp/computeCPP/ComputeCpp-CE-0.1.2-Ubuntu.14.04-64bit.tar.gz \
 https://s3-us-west-1.amazonaws.com/sdc-gpu/ComputeCpp-CE-0.1.2-Ubuntu.14.04-64bit.tar.gz && \
 tar -xvzf $WORKDIR/tmp/computeCPP/ComputeCpp-CE-0.1.2-Ubuntu.14.04-64bit.tar.gz -C /usr/local/cuda-8.0/
 
-# CONDA ENV #
+# 33. Install ComputeCpp/Open CL - CONDA ENV #
 RUN bash -c "source activate tf-gpu && curl -o $WORKDIR/tmp/computeCPP/ComputeCpp-CE-0.1.2-Ubuntu.14.04-64bit.tar.gz \
 https://s3-us-west-1.amazonaws.com/sdc-gpu/ComputeCpp-CE-0.1.2-Ubuntu.14.04-64bit.tar.gz && \
 tar -xvzf $WORKDIR/tmp/computeCPP/ComputeCpp-CE-0.1.2-Ubuntu.14.04-64bit.tar.gz -C /usr/local/cuda-8.0/"
 
-## STEP 3B. Clone TensorFlow repo and Git reset to TF_VERSION ##
+## 34. Clone TensorFlow repo and Git reset to TF_VERSION ##
 RUN bash -c "git clone https://github.com/tensorflow/tensorflow $WORKDIR/tmp/tensorflow "
 
-# May delete this option
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-## Install Ubuntu Trusty Binaries ##
+## 35. Install Recommended Ubuntu Packages ##
 RUN apt-get update && \
     apt-get install -y --no-install-recommends -q -o\
     Dpkg::Options::="--force-confdef" -o \
@@ -403,22 +389,15 @@ RUN apt-get update && \
     Dpkg::Options::="--force-confold" \
     lldb-3.8
 
-## Install Ubuntu Trusty Binaries - CONDA ENV ##
+## 36. Install Recommended Ubuntu Packages - CONDA ENV ##
 RUN bash -c "source activate tf-gpu && apt-get update && \
     apt-get install -y --no-install-recommends -q -o\
     Dpkg::Options::="--force-confdef" -o \
     Dpkg::Options::="--force-confold" \
     clang-3.8"
-#      apt-get update && \
-#      apt-get install -y --no-install-recommends -q -o\
-#      Dpkg::Options::="--force-confdef" -o \
-#      Dpkg::Options::="--force-confold" \
-#      lldb-3.6"
 
-
-## STEP 3C. Export environment variables for tensorflow configuration ##
+## 37. Export environment variables for tensorflow configuration ##
 ENV PYTHON_BIN_PATH="/root/miniconda3/envs/tf-gpu/bin/python3" \
-    #PYTHON_LIB_PATH="/root/miniconda3/lib/python3.4/site-packages" \
     TF_GIT_VERSION="v1.0.0" \
     TF_NEED_JEMALLOC="1" \
     TF_ENABLE_XLA="1" \
@@ -438,7 +417,7 @@ ENV PYTHON_BIN_PATH="/root/miniconda3/envs/tf-gpu/bin/python3" \
     HOST_C_COMPILER="/usr/local/cuda-8.0/ComputeCpp-CE-0.1.2-Linux/lib/clang" \
     COMPUTECPP_TOOLKIT_PATH="/usr/local/cuda-8.0/ComputeCpp-CE-0.1.2-Linux/"
 
-# Note: This command takes roughly 900 seconds to complete #
+## 38. BUILD TENSORFLOW FROM SOURCE: (Takes roughly 900 seconds to complete) ##
 RUN bash -c "rm /usr/bin/X11"
 RUN bash -c "cd $WORKDIR/tmp/tensorflow && \
 git reset --hard $TF_GIT_VERSION && \
@@ -446,30 +425,32 @@ source configure > output.txt && \
 echo output.txt && \
 bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package"
 
-## STEP 3D. Build TensorFlow pip package with Bazel ##
+## 39. Build TensorFlow pip package with Bazel ##
 RUN bash -c "cd $WORKDIR/tmp/tensorflow && \
              source activate tf-gpu && \
              pip3 install --upgrade wheel && \
              bazel-bin/tensorflow/tools/pip_package/build_pip_package \
 $WORKDIR/tmp/tensorflow_pkg"
 
-## Create Environment Variables for Pip Installation ##
+## 40. Create Environment Variables for Pip Installation ##
 ENV TF_GPU_PATH="/root/miniconda3/envs/tf-gpu/lib/python3.4/site-packages" \
     ORIG_PATH="/usr/local/lib/python3.4/dist-packages"
 
-## STEP 3E. Upgrade PIP and install TensorFlow - CONDA ENV ##
+## 41. Upgrade PIP and install TensorFlow - CONDA ENV ##
 RUN bash -c "source activate tf-gpu && pip3 install \
 --target=$TF_GPU_PATH \
 --ignore-installed \
 -vvv \
 --upgrade $WORKDIR/tmp/tensorflow_pkg/tensorflow-1.0.0-*.whl"
 
-## STEP 3E. Upgrade PIP and install TensorFlow - ROOT ##
+## 42. Upgrade PIP and install TensorFlow - ROOT ##
 RUN bash -c "source activate tf-gpu && pip3 install \
 --target=$ORIG_PATH \
 --ignore-installed \
 -vvv \
 --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp34-none-linux_x86_64.whl"
+
+## 43. Expose Ports for  - ROOT ##
 
 # TensorBoard
 EXPOSE 6006
@@ -480,15 +461,15 @@ EXPOSE 4567
 # Docker
 EXPOSE 3470-3500
 
-## TF-GPU Working Directory ##
+## 44. TF-GPU Working Directory ##
 RUN mkdir -p /src
 WORKDIR "/src/"
 
-## Two Birds, One Stone Implementation ##
+## 45. Two Birds, One Stone Implementation ##
 ## 1. sources conda environment ##
 ## 2. prevents the zombie container issue when started as pid 1 ##
 COPY docker_files/run.sh /
 
-## Run Entrypoint Script ##
+## 46. Run Entrypoint Script ##
 RUN chmod +x /run.sh
-#ENTRYPOINT ["/run.sh"]
+ENTRYPOINT ["/run.sh"]
