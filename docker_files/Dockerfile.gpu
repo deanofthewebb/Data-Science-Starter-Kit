@@ -43,8 +43,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python-wheel \
         rsync \
         software-properties-common \
-        unzip \
         git \
+        unzip \
         libgtk2.0-0 \
   tcl-dev \
   tk-dev \
@@ -428,16 +428,16 @@ bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_
 ## 39. Build TensorFlow pip package with Bazel ##
 RUN bash -c "cd $WORKDIR/tmp/tensorflow && \
              source activate tf-gpu && \
-             pip3 install --upgrade wheel && \
+             /root/miniconda3/envs/tf-gpu/bin/pip install --upgrade wheel && \
              bazel-bin/tensorflow/tools/pip_package/build_pip_package \
 $WORKDIR/tmp/tensorflow_pkg"
 
 ## 40. Create Environment Variables for Pip Installation ##
-ENV TF_GPU_PATH="/root/miniconda3/envs/tf-gpu/lib/python3.4/site-packages" \
-    ORIG_PATH="/usr/local/lib/python3.4/dist-packages"
+ENV TF_GPU_PATH="/root/miniconda3/envs/tf-gpu/lib/python3.5/site-packages" \
+    ORIG_PATH="/usr/local/lib/python3.5/dist-packages"
 
 ## 41. Upgrade PIP and install TensorFlow - CONDA ENV ##
-RUN bash -c "source activate tf-gpu && pip3 install \
+RUN bash -c "source activate tf-gpu && /root/miniconda3/envs/tf-gpu/bin/pip install \
 --target=$TF_GPU_PATH \
 --ignore-installed \
 -vvv \
@@ -460,6 +460,8 @@ EXPOSE 8000-9000
 EXPOSE 4567
 # Docker
 EXPOSE 3470-3500
+# Docker
+EXPOSE 2376
 
 ## 44. TF-GPU Working Directory ##
 RUN mkdir -p /src
