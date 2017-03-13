@@ -474,4 +474,5 @@ COPY docker_files/run.sh /
 
 ## 46. Run Entrypoint Script ##
 RUN chmod +x /run.sh
+RUN chmod +x /src
 ENTRYPOINT ["/run.sh"]

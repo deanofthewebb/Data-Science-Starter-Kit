@@ -4,10 +4,10 @@ set -e
 
 if [ -z "$1" ]
   then
-    jupyter notebook
+    jupyter notebook --no-browser --port=8889
 elif [ "$1" == *".ipynb"* ]
   then
-    jupyter notebook "$1"
+    jupyter notebook --no-browser --port=8889 "$1"
 else
     exec "$@"
 fi
