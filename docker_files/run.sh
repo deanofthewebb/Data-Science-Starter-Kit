@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+. activate tf-gpu
 
 if [ -z "$1" ]
   then
