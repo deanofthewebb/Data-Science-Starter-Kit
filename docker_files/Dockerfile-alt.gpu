@@ -4,40 +4,40 @@ WORKDIR "/opt"
 ### PART 1. Install Dependencies ###
 ENV WORKDIR "/opt"
 
-sudo apt update
-sudo apt -y upgrade
+apt update
+apt -y upgrade
 
 # install docker
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 
-sudo add-apt-repository \
+add-apt-repository \
        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
        $(lsb_release -cs) \
-       stable" && sudo apt-get update
+       stable" && apt-get update
 
-sudo apt install -y docker-ce
+apt install -y docker-ce
 
 # install nvidia driver and cuda
-sudo add-apt-repository ppa:graphics-drivers/ppa -y
-sudo apt update
-sudo apt install nvidia-375 -y
+add-apt-repository ppa:graphics-drivers/ppa -y
+apt update
+apt install nvidia-375 -y
 
 
 wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
-sudo dpkg -i cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
-sudo apt-get update
-sudo apt-get install cuda -y
+dpkg -i cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
+apt-get update
+apt-get install cuda -y
 
 
 # Install nvidia-docker
 wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
-sudo dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
+dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
 
 # Test nvidia-smi
-sudo nvidia-docker run --rm nvidia/cuda nvidia-smi
+nvidia-docker run --rm nvidia/cuda nvidia-smi
 
 # pull the image
-sudo docker pull jmhoo/deeplearning
+docker pull jmhoo/deeplearning
 
 ## 15. Set up Jupyter Notebook config. ##
 COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
