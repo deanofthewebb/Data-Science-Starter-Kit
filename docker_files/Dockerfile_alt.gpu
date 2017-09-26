@@ -107,22 +107,6 @@ RUN sh -c "apt update && \
     nvidia-375"
 
 
-ADD https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh tmp/Miniconda3-4.2.12-Linux-x86_64.sh
-RUN bash tmp/Miniconda3-4.2.12-Linux-x86_64.sh -b
-ENV PATH $PATH:/root/miniconda3/bin/
-
-COPY docker_files/environment-gpu.yml  ./environment.yml
-RUN conda env create -f=environment.yml --name tf-gpu --debug -v -v
-
-# cleanup tarballs and downloaded package files
-RUN conda clean -tp -y
-
-# Install in Conda Env #
-RUN sh -c ". activate tf-gpu && apt update && \
-        apt install -y -q -o \
-        Dpkg::Options::='--force-confdef' -o \
-        Dpkg::Options::='--force-confold' \
-    nvidia-375"
 
 ## 12. Verify Nvidia installed ##
 RUN lspci | grep -i nvidia
@@ -181,48 +165,6 @@ dpkg -i $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64
     Dpkg::Options::="--force-confold" \
     cuda-drivers"
 
-
-
-
-RUN echo "/usr/local/cuda/lib" >> /etc/ld.so.conf.d/cuda.conf && \
-    echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf && \
-    ldconfig
-
-RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
-    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-
-## 20. Make sure CUDNN is detected via Symlink ##
-ENV LD_LIBRARY_PATH="/usr/local/cuda-8.0/lib64\
-${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-RUN ln -s /usr/lib/x86_64-linux-gnu/libcudnn.so.5 /usr/local/cuda-8.0/lib64/libcudnn.so
-
-## 21. Setup CUDA 8.0 Environment Variables ##
-ENV PATH="/usr/local/cuda-8.0/bin${PATH:+:${PATH}}"
-ENV CUDA_HOME=/usr/local/cuda-8.0/
-
-## 22. Verify CUDA Installation Version (8.0) ##
-RUN cat /proc/driver/nvidia/version
-RUN nvcc -V
-
-## 23. Test CUDA 8.0 - 'Samples' Script ##
-RUN sh -c "cuda-install-samples-8.0.sh $WORKDIR/tmp/cuda-repo/"
-
-## 24. Test CUDA 8.0 - 'Samples' Script - CONDA ENV ##
-RUN bash -c ". activate tf-gpu && cuda-install-samples-8.0.sh $WORKDIR/tmp/cuda-repo/"
-
-## 25. Put symlinks in /usr/local/cuda ##
-RUN bash -c "mkdir -p /usr/local/cuda  && \
-    mkdir -p /include/ && \
-    cd /usr/local/cuda  && \
-    ln -s  /usr/lib/x86_64-linux-gnu/ lib64  && \
-    ln -s  /usr/include/ include  && \
-    ln -s  /usr/bin/ bin  && \
-    ln -s  /usr/lib/x86_64-linux-gnu/ nvvm  && \
-    mkdir -p extras/CUPTI  && \
-    cd extras/CUPTI  && \
-    ln -s  /usr/lib/x86_64-linux-gnu/ lib64  && \
-    ln -s  /usr/include/ include"
-
 RUN mkdir -p $WORKDIR/tmp/nvidia-docker && \
     # Update this to new package
     wget -P $WORKDIR/tmp/nvidia-docker/ \
@@ -235,6 +177,17 @@ RUN mkdir -p $WORKDIR/tmp/nvidia-docker && \
 RUN mkdir -p /src
 WORKDIR "/src/"
 
+
+
+ADD https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh tmp/Miniconda3-4.2.12-Linux-x86_64.sh
+RUN bash tmp/Miniconda3-4.2.12-Linux-x86_64.sh -b
+ENV PATH $PATH:/root/miniconda3/bin/
+
+COPY docker_files/environment-gpu.yml  ./environment.yml
+RUN conda env create -f=environment.yml --name tf-gpu --debug -v -v
+
+# cleanup tarballs and downloaded package files
+RUN conda clean -tp -y
 
 ## 45. Two Birds, One Stone Implementation ##
 ## 1. sources conda environment ##

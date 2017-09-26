@@ -19,7 +19,7 @@ dependencies:
     - pandas
     - imageio
     - accelerate
+    - tensorflow-gpu
     - pip:
         - moviepy
         - git+https://github.com/fchollet/keras.git
-        - https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.3.0-cp35-cp35m-linux_x86_64.whl
