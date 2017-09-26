@@ -118,13 +118,6 @@ RUN sh -c "apt-get update && \
         Dpkg::Options::='--force-confold' \
     linux-headers-$(uname -r)"
 
-## 14. Install Linux Headers for Nvidia - CONDA ENV ##
-RUN bash -c ". activate tf-gpu && apt-get update && \
-        apt-get install -y -q -o \
-        Dpkg::Options::='--force-confdef' -o \
-        Dpkg::Options::='--force-confold' \
-    linux-headers-$(uname -r)"
-
 ## 15. Set up Jupyter Notebook config. ##
 COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
 
@@ -150,20 +143,6 @@ RUN mkdir -p $WORKDIR/tmp/cuda-repo && \
     Dpkg::Options::="--force-confold" \
     cuda-drivers
 
-## 17. Install EXTRA NVIDIA CUDA DRIVERS FOR GPU - CONDA ENV ##
-RUN bash -c ". activate tf-gpu && mkdir -p $WORKDIR/tmp/cuda-repo && \
-wget -P $WORKDIR/tmp/cuda-repo/ \
-https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb && \
-dpkg -i $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb && \
-    apt-get update && \
-    apt-get install -y -q -o \
-    Dpkg::Options::="--force-confdef" -o \
-    Dpkg::Options::="--force-confold" \
-    cuda && \
-    apt-get install -y -q -o \
-    Dpkg::Options::="--force-confdef" -o \
-    Dpkg::Options::="--force-confold" \
-    cuda-drivers"
 
 RUN mkdir -p $WORKDIR/tmp/nvidia-docker && \
     # Update this to new package
