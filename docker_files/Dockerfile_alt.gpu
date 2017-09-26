@@ -160,11 +160,8 @@ WORKDIR "/src/"
 ## 1. sources conda environment ##
 ## 2. prevents the zombie container issue when started as pid 1 ##
 COPY docker_files/run.sh /
-COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
 
-
-# reboot the machine
-RUN sudo reboot
+ENV PATH=$PATH:~/.local/bin
 
 ## 46. Run Entrypoint Script ##
 RUN chmod +x /run.sh
