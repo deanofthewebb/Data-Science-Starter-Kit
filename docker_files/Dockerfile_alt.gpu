@@ -8,6 +8,8 @@ WORKDIR "/opt"
 ### PART 1. Install Dependencies ###
 ENV WORKDIR "/opt"
 
+RUN apt update && apt -y upgrade
+
 ## 1. Install Prompt Interaction Tool ##
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update && \
