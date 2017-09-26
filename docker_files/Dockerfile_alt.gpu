@@ -162,8 +162,6 @@ WORKDIR "/src/"
 COPY docker_files/run.sh /
 COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
 
-# pull the image
-RUN sudo docker pull jmhoo/deeplearning
 
 # reboot the machine
 RUN sudo reboot
