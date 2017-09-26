@@ -1,0 +1,72 @@
+## Docker Working Directory ##
+WORKDIR "/opt"
+
+### PART 1. Install Dependencies ###
+ENV WORKDIR "/opt"
+
+sudo apt update
+sudo apt -y upgrade
+
+# install docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository \
+       "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+       $(lsb_release -cs) \
+       stable" && sudo apt-get update
+
+sudo apt install -y docker-ce
+
+# install nvidia driver and cuda
+sudo add-apt-repository ppa:graphics-drivers/ppa -y
+sudo apt update
+sudo apt install nvidia-375 -y
+
+
+wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
+sudo dpkg -i cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
+sudo apt-get update
+sudo apt-get install cuda -y
+
+
+# Install nvidia-docker
+wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
+sudo dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
+
+# Test nvidia-smi
+sudo nvidia-docker run --rm nvidia/cuda nvidia-smi
+
+# pull the image
+sudo docker pull jmhoo/deeplearning
+
+## 15. Set up Jupyter Notebook config. ##
+COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
+
+## 43. Expose Ports ##
+# TensorBoard
+EXPOSE 6006
+# Jupyter
+EXPOSE 8888-9000
+# Flask Server
+EXPOSE 4567
+# Docker
+EXPOSE 3470-3500
+# Docker
+EXPOSE 2376
+# Web
+EXPOSE 80
+EXPOSE 443
+
+## 44. TF-GPU Working Directory ##
+RUN mkdir -p /src
+WORKDIR "/src/"
+
+## 45. Two Birds, One Stone Implementation ##
+## 1. sources conda environment ##
+## 2. prevents the zombie container issue when started as pid 1 ##
+COPY docker_files/run.sh /
+
+## 46. Run Entrypoint Script ##
+RUN chmod +x /run.sh
+RUN chmod +x /src
+ENTRYPOINT ["/run.sh"]
