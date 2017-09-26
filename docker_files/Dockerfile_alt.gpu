@@ -109,7 +109,7 @@ COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
 ## 16. Install EXTRA NVIDIA CUDA DRIVERS FOR GPU ##
 RUN mkdir -p $WORKDIR/tmp/cuda-repo && \
     # Update this to new package
-    curl -o $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64.deb \
+    wget -P $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64.deb \
     http://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb && \
     dpkg -i $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64.deb && \
     apt-get update && \
