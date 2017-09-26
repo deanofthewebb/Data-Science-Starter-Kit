@@ -165,7 +165,7 @@ ADD https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh tmp/Mi
 RUN bash tmp/Miniconda3-4.2.12-Linux-x86_64.sh -b
 ENV PATH $PATH:/root/miniconda3/bin/
 
-COPY environment-gpu.yml  ./environment.yml
+COPY docker_files/environment-gpu.yml  ./environment.yml
 RUN conda env create -f=environment.yml --name carnd-term1 --debug -v -v
 
 # cleanup tarballs and downloaded package files
