@@ -2,6 +2,21 @@ FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
 ## Docker Installation of TensorFlow 1.3 with GPU [Ubuntu 14.04 + CUDA 8.0 + cuDNN] ##
 MAINTAINER @deanofthewebb
 
+## 43. Expose Ports ##
+# TensorBoard
+EXPOSE 6006
+# Jupyter
+EXPOSE 8888-9000
+# Flask Server
+EXPOSE 4567
+# Docker
+EXPOSE 3470-3500
+# Docker
+EXPOSE 2376
+# Web
+EXPOSE 80
+EXPOSE 443
+
 ## Docker Working Directory ##
 WORKDIR "/opt"
 
@@ -109,7 +124,7 @@ COPY docker_files/jupyter_notebook_config.py /root/.jupyter/
 ## 16. Install EXTRA NVIDIA CUDA DRIVERS FOR GPU ##
 RUN mkdir -p $WORKDIR/tmp/cuda-repo && \
     curl -o $WORKDIR/tmp/cuda-repo/ \
-    http://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb && \
+    https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb && \
     dpkg -i $WORKDIR/tmp/cuda-repo/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64.deb && \
     apt-get update && \
     apt-get install -y -q -o \
@@ -132,21 +147,6 @@ RUN mkdir -p $WORKDIR/tmp/nvidia-docker && \
 ## Test nvidia-smi
 RUN nvidia-docker run --rm nvidia/cuda nvidia-smi
 
-
-## 43. Expose Ports ##
-# TensorBoard
-EXPOSE 6006
-# Jupyter
-EXPOSE 8888-9000
-# Flask Server
-EXPOSE 4567
-# Docker
-EXPOSE 3470-3500
-# Docker
-EXPOSE 2376
-# Web
-EXPOSE 80
-EXPOSE 443
 
 ## 44. TF-GPU Working Directory ##
 RUN mkdir -p /src
