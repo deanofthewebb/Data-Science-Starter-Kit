@@ -156,10 +156,7 @@ RUN mkdir -p $WORKDIR/tmp/nvidia-docker && \
 RUN mkdir -p /src
 WORKDIR "/src/"
 
-## 45. Two Birds, One Stone Implementation ##
-## 1. sources conda environment ##
-## 2. prevents the zombie container issue when started as pid 1 ##
-COPY docker_files/run.sh /
+
 
 ADD https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh tmp/Miniconda3-4.2.12-Linux-x86_64.sh
 RUN bash tmp/Miniconda3-4.2.12-Linux-x86_64.sh -b
@@ -171,6 +168,10 @@ RUN conda env create -f=environment.yml --name tf-gpu --debug -v -v
 # cleanup tarballs and downloaded package files
 RUN conda clean -tp -y
 
+## 45. Two Birds, One Stone Implementation ##
+## 1. sources conda environment ##
+## 2. prevents the zombie container issue when started as pid 1 ##
+COPY docker_files/run.sh /
 
 ## 46. Run Entrypoint Script ##
 RUN chmod +x /run.sh
